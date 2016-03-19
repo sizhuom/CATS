@@ -1,8 +1,4 @@
 function [ fh ] = faster_rcnn_detect( im, opts, proposal_detection_model, rpn_net, fast_rcnn_net )
-im_pattern = 'faster_rcnn/RossHouseImage/RossHouse_%03d.png';
-%im_idx = [ 0 2:25 ];
-im_idx = [ 0 2:5 ];
-im_names = arrayfun(@(idx) sprintf(im_pattern, idx), im_idx, 'UniformOutput', false);
 
 if opts.use_gpu
     im = gpuArray(im);

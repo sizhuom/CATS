@@ -1,5 +1,5 @@
 % setup
-run faster_rcnn_setup;
+[opts, proposal_detection_model, rpn_net, fast_rcnn_net] = faster_rcnn_setup();
 
 % create video reader
 video_file = 'videos/p101.mp4';
@@ -7,7 +7,7 @@ start_time = 112;
 v = VideoReader(video_file);
 curr_frame = start_time * v.FrameRate;
 
-% process each frame
+% process the first frame in every second
 while curr_frame <= v.NumberOfFrames
     frame = read(v, curr_frame);
     fh = faster_rcnn_detect(frame, opts, proposal_detection_model, rpn_net, fast_rcnn_net);
@@ -19,4 +19,4 @@ while curr_frame <= v.NumberOfFrames
 end
 
 % cleanup
-run faster_rcnn_cleanup;
+faster_rcnn_cleanup();

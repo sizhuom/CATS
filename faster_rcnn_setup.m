@@ -1,3 +1,4 @@
+function [opts, proposal_detection_model, rpn_net, fast_rcnn_net] = faster_rcnn_setup()
 % adapted from script_faster_rcnn_demo.m
 close all;
 clc;
