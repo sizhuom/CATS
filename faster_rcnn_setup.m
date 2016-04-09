@@ -1,4 +1,4 @@
-function [opts, proposal_detection_model, rpn_net, fast_rcnn_net] = faster_rcnn_setup()
+function [opts, proposal_detection_model, rpn_net, fast_rcnn_net] = faster_rcnn_setup(use_gpu)
 % adapted from script_faster_rcnn_demo.m
 close all;
 clc;
@@ -10,12 +10,13 @@ run('startup');
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id                 = auto_select_gpu;
+%opts.gpu_id                 = 0;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
 opts.per_nms_topN           = 6000;
 opts.nms_overlap_thres      = 0.7;
 opts.after_nms_topN         = 300;
-opts.use_gpu                = true;
+opts.use_gpu                = use_gpu;
 
 opts.test_scales            = 600;
 
