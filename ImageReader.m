@@ -38,7 +38,7 @@ classdef ImageReader
         end
         
         function f = read(obj, i)
-            f = imread(obj.Filelist{i});
+            f = imread(fullfile(obj.Dir, 'img', obj.Filelist{i}));
         end
     end
     

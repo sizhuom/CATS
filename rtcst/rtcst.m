@@ -1,14 +1,21 @@
-%% Open video and set parameters
-vr = VideoReader('Person.wmv');
-num_frames = floor(vr.Duration * vr.FrameRate);
-F1 = read(vr, 1);
+%% Setup
+addpath('..');
 
-b = [ 1 1 50 40 ]; % bounding box
+%% Open video and set parameters
+%vr = VideoReader('Person.wmv');
+vr = ImageReader('../images/Dog');
+num_frames = floor(vr.Duration * vr.FrameRate);
+F1 = im2double(rgb2gray(read(vr, 1)));
+
+% b = [ 1 1 50 40 ]; % bounding box
+b = vr.Truth(:, 1);
+show_box(F1, b);
+
 d0 = b(3) * b(4);
 d = ceil(d0 * 0.01);
 
-N_s = 4000; % number of particles
-N_t = 20; % number of templates
+N_s = 200; % number of particles
+N_t = 10; % number of templates
 
 alpha_std = 0.03;
 t_std = 5;
@@ -17,11 +24,14 @@ lambda = 1; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
 comp_eps = 0.01; 
-comp_eta = ceil((N_t + 2 * d) * 0.01);
+comp_eta = ceil((N_t + 2 * d0) * 0.01);
+
+% parameter for updating templates
+sci_thresh = 0.1;
 
 %% Initialize structures
 S = create_particles(N_s);
-A = initialize_templates(F1, b, N_t, d);
+A = initialize_templates(F1, b, N_t);
 Phi = randn(d, d0);
 
 %% Main loop
@@ -29,6 +39,7 @@ for k = 2:num_frames
     
     % Getting current frame
     F_k = read(vr, k);
+    F_k = im2double(rgb2gray(F_k));
     
     % Normalize every column of PhiA
     Phi_A = Phi * A;
@@ -54,6 +65,10 @@ for k = 2:num_frames
         
         % Calculate observation likelihood
         L(i) = exp(-lambda * r);
+        
+%         waitforbuttonpress;
+%         close all;
+%         break;
     end
     
     % Estimate the new dynamic state
@@ -66,7 +81,7 @@ for k = 2:num_frames
     x = comp(Phi_y, Phi_A, comp_eps, comp_eta);
     
     % Update templates
-    A = update_templates(A, x);
+    A = update_templates(A, Nt, x, y, sci_thresh);
     
     % Resampling
     S = resample_particles(S, L);
@@ -74,6 +89,8 @@ for k = 2:num_frames
     % Showing Image
 %    show_particles(S, b, F_k); 
     show_state_estimated(S, b, F_k);
+    
+    break;
 
 end
 
