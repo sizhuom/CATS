@@ -47,7 +47,9 @@ end
 % trivial templates
 A(:, Nt+1:Nt+d0) = eye(d0);
 A(:, Nt+d0+1:Nt+2*d0) = -eye(d0);
-
+for i = Nt+1:Nt+2*d0
+    A(:, i) = normalize(A(:, i));
+end
 end
 
 function t_n = normalize(t)

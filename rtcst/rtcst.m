@@ -12,19 +12,19 @@ b = vr.Truth(:, 1);
 show_box(F1, b);
 
 d0 = b(3) * b(4);
-d = ceil(d0 * 0.01);
+d = 100;
 
 N_s = 200; % number of particles
-N_t = 10; % number of templates
+N_t = 100; % number of templates
 
 alpha_std = 0.03;
 t_std = 5;
 
-lambda = 1; % parameter in computing the likelihood
+lambda = 100; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
 comp_eps = 0.01; 
-comp_eta = ceil((N_t + 2 * d0) * 0.01);
+comp_eta = d/2;
 
 % parameter for updating templates
 sci_thresh = 0.1;
@@ -45,6 +45,7 @@ for k = 2:num_frames
     Phi_A = Phi * A;
     for i = 1:size(Phi_A, 2)
         col = Phi_A(:, i);
+        col = col - mean(col);
         Phi_A(:, i) = col / norm(col);
     end
     
@@ -54,7 +55,10 @@ for k = 2:num_frames
     for i = 1:N_s
         % Get normalized mapped observation Phi_y corresponding to i-th particle
         y = affine_map(F_k, S(:, i), b);
+        y = y - mean(y);
+        y = y / norm(y);
         Phi_y = Phi * y;
+        Phi_y = Phi_y - mean(Phi_y);
         Phi_y = Phi_y / norm(Phi_y);
         
         % Solve x using Customized OMP
@@ -66,6 +70,9 @@ for k = 2:num_frames
         % Calculate observation likelihood
         L(i) = exp(-lambda * r);
         
+%         find(x>0)
+%         r
+%         L(i)
 %         waitforbuttonpress;
 %         close all;
 %         break;
@@ -81,16 +88,16 @@ for k = 2:num_frames
     x = comp(Phi_y, Phi_A, comp_eps, comp_eta);
     
     % Update templates
-    A = update_templates(A, Nt, x, y, sci_thresh);
+    A = update_templates(A, N_t, x, y, sci_thresh);
     
     % Resampling
     S = resample_particles(S, L);
 
     % Showing Image
-%    show_particles(S, b, F_k); 
-    show_state_estimated(S, b, F_k);
+    show_particles(S, b, F_k); 
+%     show_state_estimated(s_k, b, F_k);
     
-    break;
+%     break;
 
 end
 
