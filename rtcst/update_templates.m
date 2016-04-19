@@ -12,8 +12,6 @@ function [ T ] = update_templates( T, Nt, x, y, tau )
 [min_val, min_idx] = min(abs(x(1:Nt)));
 min_sci = min_val / norm(x, 1);
 if (min_sci < tau)
-    y = y - mean(y);
-    y = y / norm(y);
     T(:, min_idx) = y;
 end
 

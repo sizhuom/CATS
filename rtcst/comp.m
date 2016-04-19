@@ -7,7 +7,7 @@ function [ x ] = comp( y, A, eps, eta )
 %   eta: sparsity, 0 < eta << n
 %Output:
 %   x: recovered coefficients, length n
-
+warning('off','MATLAB:rankDeficientMatrix');
 d = size(A, 1);
 n = size(A, 2);
 r = y;

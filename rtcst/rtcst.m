@@ -17,10 +17,10 @@ d = 100;
 N_s = 200; % number of particles
 N_t = 100; % number of templates
 
-alpha_std = 0.03;
+alpha_std = 0.05;
 t_std = 5;
 
-lambda = 100; % parameter in computing the likelihood
+lambda = 500; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
 comp_eps = 0.01; 
@@ -57,6 +57,10 @@ for k = 2:num_frames
         y = affine_map(F_k, S(:, i), b);
         y = y - mean(y);
         y = y / norm(y);
+        if (sum(isnan(y)) > 0)
+            L(i) = 0;
+            continue;
+        end
         Phi_y = Phi * y;
         Phi_y = Phi_y - mean(Phi_y);
         Phi_y = Phi_y / norm(Phi_y);
@@ -69,6 +73,9 @@ for k = 2:num_frames
         
         % Calculate observation likelihood
         L(i) = exp(-lambda * r);
+        if (isnan(L(i)))
+            break;
+        end
         
 %         find(x>0)
 %         r
@@ -91,12 +98,14 @@ for k = 2:num_frames
     A = update_templates(A, N_t, x, y, sci_thresh);
     
     % Resampling
+%     show_particles(S, b, F_k); 
+%     waitforbuttonpress;
     S = resample_particles(S, L);
 
     % Showing Image
-    show_particles(S, b, F_k); 
-%     show_state_estimated(s_k, b, F_k);
-    
+%     show_particles(S, b, F_k); 
+    show_state_estimated(s_k, b, F_k);
+    fprintf('Frame %d\n', k);
 %     break;
 
 end
