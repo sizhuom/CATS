@@ -28,7 +28,14 @@ classdef ImageReader
                 obj.FrameRate = 1;
                 
                 truthFile = fopen(fullfile(d, 'groundtruth_rect.txt'), 'r');
-                obj.Truth = fscanf(truthFile, '%d', [4 Inf]);
+                line = fgets(truthFile);
+                if (sum(line == ',') > 0)
+                    fseek(truthFile, 0, 'bof');
+                    obj.Truth = fscanf(truthFile, '%d,%d,%d,%d', [4 Inf]);
+                else
+                    fseek(truthFile, 0, 'bof');
+                    obj.Truth = fscanf(truthFile, '%d', [4 Inf]);
+                end
                 fclose(truthFile);
                 
             else
