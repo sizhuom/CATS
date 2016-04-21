@@ -6,8 +6,13 @@ addpath('..');
 vr = ImageReader('../images/Dog');
 % vr = ImageReader('../images/Basketball');
 % vr = ImageReader('../images/BlurCar2');
+% vr = ImageReader('../images/Car4');
 num_frames = floor(vr.Duration * vr.FrameRate);
-F_1 = im2double(rgb2gray(read(vr, 1)));
+F_1 = read(vr, 1);
+if (size(F_1, 3) > 1)
+    F_1 = rgb2gray(F_1);
+end
+F_1 = im2double(F_1);
 
 % b = [ 1 1 50 40 ]; % bounding box
 b = vr.Truth(:, 1);
@@ -22,31 +27,36 @@ N_t = 100; % number of templates
 alpha_std = 0;
 t_std = 5;
 
-lambda = 1; % parameter in computing the likelihood
+lambda = 3; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
 comp_eps = 0.01; 
 comp_eta = d/2;
 
 % parameter for updating templates
-sci_thresh = 0.1;
+sci_thresh = 0.3;
 
 %% Initialize structures
 S = create_particles(N_s);
-A = initialize_templates(F_1, b, N_t);
+T = initialize_templates(F_1, b, N_t);
+% E = [eye(d0) -eye(d0)];
+% A = [T E];
+E = [eye(d) -eye(d)];
 Phi = randn(d, d0);
 L = ones(1, N_s);
 
 %% Main loop
 for k = 2:num_frames
-    
     % Getting current frame
     F_k = read(vr, k);
-    F_k = im2double(rgb2gray(F_k));
+    if (size(F_k, 3) > 1)
+        F_k = rgb2gray(F_k);
+    end
+    F_k = im2double(F_k);
 %     F_k = F_1;
     
     % Normalize every column of PhiA
-    Phi_A = Phi * A;
+    Phi_A = [Phi*T, E];
     for i = 1:size(Phi_A, 2)
         col = Phi_A(:, i);
         col = col - mean(col);
@@ -100,7 +110,7 @@ for k = 2:num_frames
     x = comp(Phi_y, Phi_A, comp_eps, comp_eta);
     
     % Update templates
-    A = update_templates(A, N_t, x, y, sci_thresh);
+    T = update_templates(T, N_t, x, y, sci_thresh);
     
     % Resampling
     show_particles(S, L, b, F_k); 

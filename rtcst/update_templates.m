@@ -10,9 +10,9 @@ function [ T ] = update_templates( T, Nt, x, y, tau )
 %   T_new: new templates
 
 xn = x(1:Nt);
-[min_val, min_idx] = min(abs(xn));
-min_sci = min_val / norm(xn, 1);
-if (min_sci < tau)
+sci = norm(xn, 1) / norm(x, 1)
+if (sci < tau)
+    [~, min_idx] = min(abs(xn));
     T(:, min_idx) = y;
 end
 
