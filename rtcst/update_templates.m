@@ -1,4 +1,4 @@
-function [ T ] = update_templates( T, Nt, x, y, tau )
+function [ T, i ] = update_templates( T, Nt, x, y, tau )
 %UPDATE_TEMPLATES
 %Input:
 %   T: old templates
@@ -8,12 +8,15 @@ function [ T ] = update_templates( T, Nt, x, y, tau )
 %   tau: threshold to replace a template
 %Output:
 %   T_new: new templates
+%   i: index of the templated replaced. 0 if none
 
+i = 0;
 xn = x(1:Nt);
 sci = norm(xn, 1) / norm(x, 1)
 if (sci < tau)
-    [~, min_idx] = min(abs(xn));
-    T(:, min_idx) = y;
+    idx = find(xn == 0);
+    i = idx(randi(length(idx)));
+    T(:, i) = y;
 end
 
 end

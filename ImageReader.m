@@ -6,6 +6,7 @@ classdef ImageReader
         Filelist
         Duration
         FrameRate
+        NumberOfFrames
         Truth
     end
     
@@ -20,11 +21,12 @@ classdef ImageReader
                 obj.Duration = 0;
                 for i = 1:length(files)
                     [~, ~, ext] = fileparts(files(i).name);
-                    if strcmp(ext, '.jpg')
+                    if strcmp(ext, '.jpg') || strcmp(ext, '.png')
                         obj.Filelist{obj.Duration+1} = files(i).name;
                         obj.Duration = obj.Duration + 1;
                     end
                 end
+                obj.NumberOfFrames = obj.Duration;
                 obj.FrameRate = 1;
                 
                 truthFile = fopen(fullfile(d, 'groundtruth_rect.txt'), 'r');

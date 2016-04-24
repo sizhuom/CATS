@@ -1,70 +1,66 @@
-%% Setup
-addpath('..');
+function rtcst(reader, b, params, output_dir)
+%% Set parameters
+if ~exist(output_dir, 'dir')
+    mkdir(output_dir);
+end
 
-%% Open video and set parameters
-% vr = VideoReader('Person.wmv');
-vr = ImageReader('../images/Dog');
-% vr = ImageReader('../images/Basketball');
-% vr = ImageReader('../images/BlurCar2');
-% vr = ImageReader('../images/Car4');
-num_frames = floor(vr.Duration * vr.FrameRate);
-F_1 = read(vr, 1);
+F_1 = read(reader, 1);
 if (size(F_1, 3) > 1)
     F_1 = rgb2gray(F_1);
 end
 F_1 = im2double(F_1);
 
-% b = [ 1 1 50 40 ]; % bounding box
-b = vr.Truth(:, 1);
 show_box(F_1, b);
+img = saveAnnotatedImg(gcf);
+imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', 1)));
 
 d0 = b(3) * b(4);
-d = 100;
+d = params.d;
 
-N_s = 200; % number of particles
-N_t = 100; % number of templates
+N_s = params.N_s; % number of particles
+N_t = params.N_t; % number of templates
 
-alpha_std = 0;
-t_std = 5;
+affine_std = params.affine_std;
 
-lambda = 3; % parameter in computing the likelihood
+lambda = params.lambda; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
-comp_eps = 0.01; 
-comp_eta = d/2;
+comp_eps = params.comp_eps; 
+comp_eta = params.comp_eta;
 
 % parameter for updating templates
-sci_thresh = 0.3;
+sci_thresh = params.sci_thresh;
+
+% for debug
+temp_count = 0;
 
 %% Initialize structures
-S = create_particles(N_s);
+S = create_particles(N_s, b);
+s_k = S(:, 1);
 T = initialize_templates(F_1, b, N_t);
-% E = [eye(d0) -eye(d0)];
-% A = [T E];
 E = [eye(d) -eye(d)];
 Phi = randn(d, d0);
 L = ones(1, N_s);
 
+% Normalize every column of PhiA
+Phi_A = [Phi*T, E];
+for i = 1:N_t %size(Phi_A, 2)
+    col = Phi_A(:, i);
+    col = col - mean(col);
+    Phi_A(:, i) = col / norm(col);
+end
+
 %% Main loop
-for k = 2:num_frames
+for k = 2:reader.NumberOfFrames
     % Getting current frame
-    F_k = read(vr, k);
+    F_k = read(reader, k);
     if (size(F_k, 3) > 1)
         F_k = rgb2gray(F_k);
     end
     F_k = im2double(F_k);
-%     F_k = F_1;
-    
-    % Normalize every column of PhiA
-    Phi_A = [Phi*T, E];
-    for i = 1:size(Phi_A, 2)
-        col = Phi_A(:, i);
-        col = col - mean(col);
-        Phi_A(:, i) = col / norm(col);
-    end
     
     % Update particles
-    S = update_particles(S, alpha_std, t_std);
+    S = update_particles(S, s_k, affine_std);
     for i = 1:N_s
         % Get normalized mapped observation Phi_y corresponding to i-th particle
         y = affine_map(F_k, S(:, i), b);
@@ -88,16 +84,6 @@ for k = 2:num_frames
         
         % Calculate observation likelihood
         L(i) = exp(-lambda * r);
-        if (isnan(L(i)))
-            break;
-        end
-        
-%         find(x>0)
-%         r
-%         L(i)
-%         waitforbuttonpress;
-%         close all;
-%         break;
     end
     
     % Estimate the new dynamic state
@@ -105,23 +91,36 @@ for k = 2:num_frames
     
     % Recalculate x
     y = affine_map(F_k, s_k, b);
+    show_affine_map(y, b);
+    y = y - mean(y);
+    y = y / norm(y);
     Phi_y = Phi * y;
+    Phi_y = Phi_y - mean(Phi_y);
     Phi_y = Phi_y / norm(Phi_y);
     x = comp(Phi_y, Phi_A, comp_eps, comp_eta);
     
     % Update templates
-    T = update_templates(T, N_t, x, y, sci_thresh);
+    [T, i] = update_templates(T, N_t, x, y, sci_thresh);
+    if i > 0
+        col = Phi * T(:, i);
+        col = col - mean(col);
+        Phi_A(:, i) = col / norm(col);
+        temp_count = temp_count + 1;
+    end
     
     % Resampling
-    show_particles(S, L, b, F_k); 
-%     waitforbuttonpress;
+%     show_particles(S, L, b, F_k); 
     S = resample_particles(S, L);
 
     % Showing Image
 %     show_particles(S, L, b, F_k); 
-%     show_state_estimated(s_k, b, F_k);
+    show_state_estimated(s_k, b, F_k);
     fprintf('Frame %d\n', k);
-%     break;
+    
+    img = saveAnnotatedImg(gcf);
+    imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', k)));
 
 end
+
+fprintf('Templates have been updated %d times\n', temp_count);
 
