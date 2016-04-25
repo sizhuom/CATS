@@ -4,7 +4,7 @@ if ~exist(output_dir, 'dir')
     mkdir(output_dir);
 end
 
-F_1 = read(reader, 1);
+F_1 = read(reader, params.start_frame);
 if (size(F_1, 3) > 1)
     F_1 = rgb2gray(F_1);
 end
@@ -51,7 +51,7 @@ for i = 1:N_t %size(Phi_A, 2)
 end
 
 %% Main loop
-for k = 2:reader.NumberOfFrames
+for k = params.start_frame+1:reader.NumberOfFrames
     % Getting current frame
     F_k = read(reader, k);
     if (size(F_k, 3) > 1)

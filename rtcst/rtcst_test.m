@@ -15,6 +15,8 @@ output_dir = '../images/result';
 
 b = vr.Truth(:, 1);
 
+params.start_frame = 1;
+
 params.d = 100;
 
 params.N_s = 100; % number of particles
@@ -26,7 +28,7 @@ params.lambda = 10; % parameter in computing the likelihood
 
 % parameter for Customized OMP early stop
 params.comp_eps = 0.01; 
-params.comp_eta = d/2;
+params.comp_eta = params.d/2;
 
 % parameter for updating templates
 params.sci_thresh = 0.2;
