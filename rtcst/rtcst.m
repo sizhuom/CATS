@@ -10,6 +10,7 @@ if (size(F_1, 3) > 1)
 end
 F_1 = im2double(F_1);
 
+figure(1);
 show_box(F_1, b);
 img = saveAnnotatedImg(gcf);
 imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', 1)));
@@ -91,7 +92,10 @@ for k = params.start_frame+1:reader.NumberOfFrames
     
     % Recalculate x
     y = affine_map(F_k, s_k, b);
-    show_affine_map(y, b);
+    if (params.show_cropped)
+        figure(2);
+        show_affine_map(y, b);
+    end
     y = y - mean(y);
     y = y / norm(y);
     Phi_y = Phi * y;
@@ -109,12 +113,17 @@ for k = params.start_frame+1:reader.NumberOfFrames
     end
     
     % Resampling
-%     show_particles(S, L, b, F_k); 
+    if (params.draw_particles)
+        figure(1);
+        show_particles(S, L, b, F_k); 
+    end
     S = resample_particles(S, L);
 
     % Showing Image
-%     show_particles(S, L, b, F_k); 
-    show_state_estimated(s_k, b, F_k);
+    if (~params.draw_particles)
+        figure(1);
+        show_state_estimated(s_k, b, F_k);
+    end
     fprintf('Frame %d\n', k);
     
     img = saveAnnotatedImg(gcf);

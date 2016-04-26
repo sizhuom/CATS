@@ -33,5 +33,9 @@ params.comp_eta = params.d/2;
 % parameter for updating templates
 params.sci_thresh = 0.2;
 
+% parameter for debugging
+params.draw_particles = true;
+params.show_cropped = false;
+
 %% Tracking
 rtcst(vr, b, params, output_dir);
