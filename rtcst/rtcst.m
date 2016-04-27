@@ -13,7 +13,7 @@ F_1 = im2double(F_1);
 figure(1);
 show_box(F_1, b);
 img = saveAnnotatedImg(gcf);
-imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', 1)));
+imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', params.start_frame)));
 
 d0 = b(3) * b(4);
 d = params.d;

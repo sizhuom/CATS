@@ -26,7 +26,7 @@ i = 1;
 while i < Nt
     x1n = x1 + dx; x2n = x2 + dx;
     y1n = y1 + dy; y2n = y2 + dy;
-    if ~(x1n < 0 || x2n > W || y1n < 0 || y2n > H)
+    if ~(x1n <= 0 || x2n > W || y1n <= 0 || y2n > H)
         i = i + 1;
         t = F1(y1n:y2n, x1n:x2n);
         T(:, i) = normalize(t);
