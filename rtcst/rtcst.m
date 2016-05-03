@@ -1,4 +1,4 @@
-function rtcst(reader, b, params, output_dir)
+function R = rtcst(reader, b, params, output_dir)
 %% Set parameters
 if ~exist(output_dir, 'dir')
     mkdir(output_dir);
@@ -38,6 +38,8 @@ temp_count = 0;
 %% Initialize structures
 S = create_particles(N_s, b);
 s_k = S(:, 1);
+R = zeros(length(s_k), params.end_frame);
+R(:, 1) = s_k;
 T = initialize_templates(F_1, b, N_t);
 E = [eye(d) -eye(d)];
 Phi = randn(d, d0);
@@ -52,7 +54,7 @@ for i = 1:N_t %size(Phi_A, 2)
 end
 
 %% Main loop
-for k = params.start_frame+1:reader.NumberOfFrames
+for k = params.start_frame+1:params.end_frame
     % Getting current frame
     F_k = read(reader, k);
     if (size(F_k, 3) > 1)
@@ -128,6 +130,9 @@ for k = params.start_frame+1:reader.NumberOfFrames
     
     img = saveAnnotatedImg(gcf);
     imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', k)));
+    
+    % Save the affine parameters as result
+    R(:, k) = s_k;
 
 end
 

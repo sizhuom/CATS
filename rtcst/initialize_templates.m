@@ -32,16 +32,21 @@ while i < Nt
         T(:, i) = normalize(t);
     end
     
-    if dy >= 0
-        dx = dx + 1;
-        if dx > ds
-            ds = ds + 1;
-            dx = -ds;
-        end
-        dy = -(ds - abs(dx));
-    else
-        dy = -dy;
-    end
+    % gradually move outwards
+%     if dy >= 0
+%         dx = dx + 1;
+%         if dx > ds
+%             ds = ds + 1;
+%             dx = -ds;
+%         end
+%         dy = -(ds - abs(dx));
+%     else
+%         dy = -dy;
+%     end
+
+    % only choose within a distance
+    dx = (randn() * 1);
+    dy = (randn() * 1);
 end
     
 % % trivial templates
