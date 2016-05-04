@@ -45,8 +45,8 @@ while i < Nt
 %     end
 
     % only choose within a distance
-    dx = (randn() * 1);
-    dy = (randn() * 1);
+    dx = floor(randn() * 0);
+    dy = floor(randn() * 0);
 end
     
 % % trivial templates

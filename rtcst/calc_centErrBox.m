@@ -1,8 +1,8 @@
 function [ err ] = calc_centErrBox( R, vr, params )
 
-truth = vr.Truth;
+truth = vr.Truth(:, params.start_frame:params.end_frame);
 err = [];
-for i = params.start_frame:params.end_frame
+for i = size(R, 2)
     x = R(1, i) - 0.5 + R(3, i) / 2;
     y = R(2, i) - 0.5 + R(4, i) / 2;
     tx = truth(1, i) - 0.5 + truth(3, i) / 2;

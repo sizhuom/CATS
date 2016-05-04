@@ -1,10 +1,10 @@
 function [ err ] = calc_centErrAffn( R, vr, params )
 
-truth = vr.Truth;
+truth = vr.Truth(:, params.start_frame:params.end_frame);
 u = (1 + truth(3, 1)) / 2;
 v = (1 + truth(4, 1)) / 2;
 err = [];
-for i = params.start_frame:params.end_frame
+for i = 1:size(R, 2)
     s = R(:, i);
     tform = affine2d([s(1) s(2) 0; s(3) s(4) 0; s(5) s(6) 1]);
     [x, y] = transformPointsForward(tform, u, v);

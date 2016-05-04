@@ -13,7 +13,9 @@ addpath('..');
 % vr = ImageReader('../images/Car1');
 % output_dir = '../images/result';
 
-test_set = 'Car4';
+% test_set = 'Car4';
+% test_set = 'Car1';
+test_set = 'Basketball';
 
 vr = ImageReader(['../images/' test_set]);
 output_dir = ['../images/' test_set '__result'];
@@ -28,7 +30,7 @@ params.d = 100;
 params.N_s = 100; % number of particles
 params.N_t = 100; % number of templates
 
-params.affine_std = [0.03,0.001,0.001,0.03,10,10];
+params.affine_std = [0.03,0.003,0.003,0.03,10,10];
 
 params.lambda = 10; % parameter in computing the likelihood
 
@@ -45,7 +47,7 @@ params.show_cropped = false;
 
 %% Tracking
 R = rtcst(vr, b, params, output_dir);
-save(['../images/' test_set '.mat'], 'R');
+save(['../images/' test_set '.mat'], 'R', 'params');
 
 %% Test results
 centErr = calc_centErrAffn(R, vr, params);

@@ -132,7 +132,7 @@ for k = params.start_frame+1:params.end_frame
     imwrite(img, fullfile(output_dir, sprintf('frame%04d.png', k)));
     
     % Save the affine parameters as result
-    R(:, k) = s_k;
+    R(:, k-params.start_frame+1) = s_k;
 
 end
 
